@@ -1,4 +1,5 @@
-import { Button, Modal, StyleSheet, Text, View } from "react-native";
+import { useCallback } from "react";
+import { Alert, Button, Linking, Modal, StyleSheet, Text, View } from "react-native";
 
 export default function ScanResultModal({
   isVisible,
@@ -6,6 +7,16 @@ export default function ScanResultModal({
   url,
   handleClose,
 }) {
+  const handlePress = useCallback(async () => {
+    const supported = await Linking.canOpenURL(url);
+
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert("The given URL is invalid and can't be opened.")
+    }
+  })
+
   return (
     <Modal animationType="slide" visible={isVisible} transparent={true}>
       <View style={styles.centeredView}>
@@ -27,7 +38,7 @@ export default function ScanResultModal({
             </>
           )}
           <Button
-            onPress={handleClose}
+            onPress={isMalicious ? handleClose : handlePress}
             title={isMalicious ? "CLOSE" : "OPEN LINK"}
           />
           {!isMalicious && <Button onPress={handleClose} title="CANCEL"></Button>}
